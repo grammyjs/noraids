@@ -1,6 +1,6 @@
 import { Bot, InputFile } from "grammy/mod.ts";
 import { Client, errors, StorageLocalStorage } from "mtkruto/mod.ts";
-import { SECOND } from "./misc.ts";
+import { HOUR } from "./misc.ts";
 import env from "./env.ts";
 
 const client = new Client(
@@ -59,8 +59,8 @@ async function enableJoinRequests(username: string) {
   }
 }
 
-const limit = 10;
-const timeframe = 30 * SECOND;
+const limit = 30;
+const timeframe = 1 * HOUR;
 function incr(username: string) {
   const count = `${username}_count`, lastReset_ = `${username}_lastReset`;
 
@@ -103,10 +103,16 @@ bot.catch((ctx) => {
 });
 
 bot.chatType("supergroup")
-  .on("message", async (ctx, next) => {
+  .on("chat_member", async (ctx, next) => {
     if (ctx.chat.id == env.LOG_CHAT_ID) return await next();
     const username = ctx.chat.username;
     if (!username) {
+      return;
+    }
+    if (
+      ctx.chatMember.old_chat_member.status != "left" ||
+      ctx.chatMember.new_chat_member.status != "member"
+    ) {
       return;
     }
     if (incr(username) >= limit) {
@@ -149,5 +155,5 @@ logChat.command("disable", async (ctx) => {
 await client.start();
 await bot.start({
   drop_pending_updates: true,
-  allowed_updates: ["chat_member", "message"],
+  allowed_updates: ["chat_member"],
 }); // should remove drop_pending_updates after tests are done
