@@ -1,5 +1,10 @@
 import { Bot, InputFile } from "grammy/mod.ts";
-import { Client, errors, StorageLocalStorage } from "mtkruto/mod.ts";
+import {
+  APP_VERSION,
+  Client,
+  errors,
+  StorageLocalStorage,
+} from "mtkruto/mod.ts";
 import { HOUR } from "./misc.ts";
 import env from "./env.ts";
 
@@ -7,6 +12,7 @@ const client = new Client(
   new StorageLocalStorage("client"),
   env.API_ID,
   env.API_HASH,
+  { appVersion: `${APP_VERSION} (noraids${env.APP_VERSION_SUFFIX})` },
 );
 const bot = new Bot(env.BOT_TOKEN);
 const startTime = new Date().toUTCString();
@@ -155,5 +161,5 @@ logChat.command("disable", async (ctx) => {
 await client.start();
 await bot.start({
   drop_pending_updates: true,
-  allowed_updates: ["chat_member"],
-}); // should remove drop_pending_updates after tests are done
+  allowed_updates: ["chat_member", "message"],
+});

@@ -6,4 +6,5 @@ export default cleanEnv(Deno.env.toObject(), {
   API_HASH: str(),
   BOT_TOKEN: str(),
   LOG_CHAT_ID: num(),
+  APP_VERSION_SUFFIX: str({ default: "" }),
 });
