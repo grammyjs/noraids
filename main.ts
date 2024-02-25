@@ -5,7 +5,7 @@ import {
   errors,
   StorageLocalStorage,
 } from "mtkruto/mod.ts";
-import { HOUR } from "./misc.ts";
+import { display, HOUR, MINUTE } from "./misc.ts";
 import env from "./env.ts";
 
 const client = new Client(
@@ -17,15 +17,15 @@ const client = new Client(
 const bot = new Bot(env.BOT_TOKEN);
 const startTime = new Date().toUTCString();
 
-const minutes = 15;
 let timeout: ReturnType<typeof setTimeout> | null = null;
+const minutes = 15;
 client.on("connectionState", (ctx) => {
   if (ctx.connectionState != "ready") return;
   if (timeout != null) clearTimeout(timeout);
   console.log(`stopping the client in ${minutes} minutes`);
   timeout = setTimeout(
     () => client.disconnect().then(() => console.log("stopped the client")),
-    minutes * 60 * 1_000,
+    minutes * MINUTE,
   );
 });
 
@@ -65,28 +65,36 @@ async function enableJoinRequests(username: string) {
   }
 }
 
+const timestamps = new Map<string, number[]>();
+const indexes = new Map<string, number>();
 const limit = 30;
 const timeframe = 1 * HOUR;
 function incr(username: string) {
-  const count = `${username}_count`, lastReset_ = `${username}_lastReset`;
-
-  let current = Number(localStorage.getItem(count)) || 0;
-  if (!current) {
-    localStorage.setItem(lastReset_, String(Date.now()));
-  } else {
-    const lastReset = Number(localStorage.getItem(lastReset_) || 0);
-    if (lastReset && Date.now() - lastReset >= timeframe) {
-      current = 0;
-      localStorage.removeItem(lastReset_);
+  username = username.toLowerCase();
+  const timestamps_ = (() => {
+    const v = timestamps.get(username);
+    if (v) {
+      return v;
+    } else {
+      const v = new Array<number>(limit).fill(0);
+      timestamps.set(username, v);
+      return v;
     }
+  })();
+  const index = indexes.get(username) ?? 0;
+  const current = timestamps_[index];
+  if (Date.now() - current <= timeframe) {
+    return timestamps_.filter((v) => v).sort((a, b) => a - b);
+  } else {
+    timestamps_[index] = Date.now();
   }
-  ++current;
-  localStorage.setItem(`${username}_count`, String(current));
-  return current;
+  indexes.set(username, (index + 1) % timestamps_.length);
+  return null;
 }
 function reset(username: string) {
-  localStorage.removeItem(`${username}_count`);
-  localStorage.removeItem(`${username}_lastReset`);
+  username = username.toLowerCase();
+  timestamps.delete(username);
+  indexes.delete(username);
 }
 
 bot.catch((ctx) => {
@@ -121,14 +129,18 @@ bot.chatType("supergroup")
     ) {
       return;
     }
-    if (incr(username) >= limit) {
+    const result = incr(username);
+    if (result != null) {
       const then = performance.now();
-      const result = await enableJoinRequests(username);
+      const enabled = await enableJoinRequests(username);
       reset(username);
-      if (result) {
+      if (enabled) {
         await ctx.reply(
           `Join requests enabled in ${performance.now() - then}ms.`,
         );
+        await ctx.reply(`<b>JOIN TIMESTAMPS</b>\n${display(result)}`, {
+          parse_mode: "HTML",
+        });
       } else {
         await ctx.reply("Join requests are already enabled.");
       }
