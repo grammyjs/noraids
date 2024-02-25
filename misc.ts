@@ -13,6 +13,6 @@ export function display(timestamps: number[]) {
       const MS = v.getMilliseconds().toString().padStart(3, "0");
       return `${HH}:${MM}:${SS}.${MS}`;
     })
-    .map((v) => `- ${v}`)
+    .map((v) => `\u2981 ${v}`)
     .join("\n");
 }
