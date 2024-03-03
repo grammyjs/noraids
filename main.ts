@@ -71,15 +71,10 @@ const limit = 30;
 const timeframe = 1 * HOUR;
 function incr(username: string) {
   username = username.toLowerCase();
-  const timestamps_ = (() => {
-    const v = timestamps.get(username);
-    if (v) {
-      return v;
-    } else {
-      const v = new Array<number>(limit).fill(0);
-      timestamps.set(username, v);
-      return v;
-    }
+  const timestamps_ = timestamps.get(username) ?? (() => {
+    const v = new Array<number>(limit).fill(0);
+    timestamps.set(username, v);
+    return v;
   })();
   const index = indexes.get(username) ?? 0;
   const current = timestamps_[index];
