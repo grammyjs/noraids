@@ -1,15 +1,9 @@
 import { Bot, InputFile } from "grammy/mod.ts";
-import {
-  APP_VERSION,
-  Client,
-  errors,
-  StorageLocalStorage,
-} from "mtkruto/mod.ts";
+import { APP_VERSION, Client, errors } from "mtkruto/mod.ts";
 import { display, HOUR, MINUTE } from "./misc.ts";
 import env from "./env.ts";
 
 const client = new Client({
-  storage: new StorageLocalStorage("client"),
   apiId: env.API_ID,
   apiHash: env.API_HASH,
   appVersion: `${APP_VERSION} (noraids${env.APP_VERSION_SUFFIX})`,
@@ -165,6 +159,7 @@ logChat.command("disable", async (ctx) => {
   }
 });
 
+await client.importAuthString(env.AUTH_STRING);
 await client.start();
 await bot.start({
   drop_pending_updates: true,
