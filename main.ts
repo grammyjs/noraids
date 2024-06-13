@@ -8,12 +8,12 @@ import {
 import { display, HOUR, MINUTE } from "./misc.ts";
 import env from "./env.ts";
 
-const client = new Client(
-  new StorageLocalStorage("client"),
-  env.API_ID,
-  env.API_HASH,
-  { appVersion: `${APP_VERSION} (noraids${env.APP_VERSION_SUFFIX})` },
-);
+const client = new Client({
+  storage: new StorageLocalStorage("client"),
+  apiId: env.API_ID,
+  apiHash: env.API_HASH,
+  appVersion: `${APP_VERSION} (noraids${env.APP_VERSION_SUFFIX})`,
+});
 const bot = new Bot(env.BOT_TOKEN);
 const startTime = new Date().toUTCString();
 

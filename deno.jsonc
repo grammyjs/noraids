@@ -1,8 +1,9 @@
 {
+  "lock": false,
   "imports": {
-    "std/": "https://deno.land/std@0.215.0/",
+    "std/": "https://deno.land/std@0.224.0/",
     "grammy/": "https://deno.land/x/grammy@v1.20.3/",
     "envalid/": "https://deno.land/x/envalid@0.1.2/",
-    "mtkruto/": "https://raw.githubusercontent.com/MTKruto/MTKruto/main/"
+    "mtkruto/": "https://deno.land/x/mtkruto@0.2.11/"
   }
 }
