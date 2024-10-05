@@ -1,6 +1,7 @@
+import { HOUR, MINUTE } from "@std/datetime/constants";
 import { Bot, InputFile } from "grammy/mod.ts";
-import { APP_VERSION, Client, errors } from "mtkruto/mod.ts";
-import { display, HOUR, MINUTE } from "./misc.ts";
+import { APP_VERSION, Client, errors } from "@mtkruto/mtkruto";
+import { display } from "./misc.ts";
 import env from "./env.ts";
 
 const client = new Client({
